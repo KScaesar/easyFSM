@@ -21,7 +21,7 @@ By visualizing state transitions using Mermaid, users can gain a clearer underst
 ## Install
 
 ```shell
-go get github.com/KScaesar/easyFSM
+go get github.com/KScaesar/easyFSM@v0.1.0
 ```
 
 ## Example
@@ -128,7 +128,7 @@ graph TD
 
 ### Step 4: Call the domain object method in Domain-Driven Design (DDD)
 
-[playground](https://go.dev/play/p/u50mPJtvSu8)
+[playground](https://go.dev/play/p/j-7Y_UGCuUO)
 
 ```go
 func ExampleFSM_OnAction() {
@@ -159,7 +159,7 @@ type Order struct {
 }
 
 func (o *Order) ReturnRequest() error {
-	fsm := OrderStateFSM.SetCurrent(o.State)
+	fsm := OrderStateFSM.CopyFSM(o.State)
 	return fsm.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
 		o.State = nextState
 		fmt.Println("ReturnRequest success!!")
