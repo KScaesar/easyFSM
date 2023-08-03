@@ -60,6 +60,7 @@ func (fsm *FSM[E, S]) DefineTransition(event E, src, dest S) *FSM[E, S]
 ```
 
 ```go
+// The FSM should be placed in the global scope.
 var OrderStateFSM = NewFSM[OrderEventTopic, OrderState](OrderStateAwaitingPayment).
 	DefineTransition(OrderEventTopicPlaced, OrderStateAwaitingPayment, OrderStateConfirmed).
 	DefineTransition(OrderEventTopicShipped, OrderStateConfirmed, OrderStateShipped).
@@ -128,30 +129,9 @@ graph TD
 
 ### Step 4: Call the domain object method in Domain-Driven Design (DDD)
 
-[playground](https://go.dev/play/p/j-7Y_UGCuUO)
+[playground](https://go.dev/play/p/X_aDExbSu4N)
 
 ```go
-func ExampleFSM_OnAction() {
-	repo := MemoryOrderRepository{}
-	ctx := context.Background()
-
-	// UseCaseSuccess:
-	// ReturnRequest success!!
-	fmt.Printf("UseCaseSuccess:\n")
-	err := OrderUseCaseSuccess(repo, ctx)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// UseCaseFail:
-	// key = {event: Order.ReturnRequested, requiredState: Delivered}, but currentState = Cancelled: state not match
-	fmt.Printf("\nUseCaseFail:\n")
-	err = OrderUseCaseFail(repo, ctx)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 type Order struct {
 	Id string
 	// ... other field
@@ -159,7 +139,8 @@ type Order struct {
 }
 
 func (o *Order) ReturnRequest() error {
-	fsm := OrderStateFSM.CopyFSM(o.State)
+	fsm := OrderStateFSM.CopyFSM(o.State) // copy by vlaue
+
 	return fsm.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
 		o.State = nextState
 		fmt.Println("ReturnRequest success!!")
@@ -170,7 +151,7 @@ func (o *Order) ReturnRequest() error {
 func OrderUseCaseSuccess(repo OrderRepository, ctx context.Context) error {
 	order, err := repo.LockOrderById(ctx, "action_success")
 	if err != nil {
-		return err
+		return fmt.Errorf("get obj from db: %w", err)
 	}
 
 	return order.ReturnRequest()
