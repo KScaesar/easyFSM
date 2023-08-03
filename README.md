@@ -1,6 +1,24 @@
 # Tutorial
 
-## install
+I really like the concept of Domain-Driven Design (DDD), but I often struggle with handling state changes in domain objects.  
+
+I created this package with the motivation to simplify state management and leverage Mermaid for visualizing state transitions.  
+
+The traditional approach of handling state changes in domain objects often involves writing numerous if conditions, which can be error-prone and mentally taxing.  
+
+This package aims to provide a more straightforward and organized way to manage states, making it easier for developers to understand and maintain their code.  
+
+By visualizing state transitions using Mermaid, users can gain a clearer understanding of the system's behavior and enhance their overall development experience.  
+
+- [Tutorial](#tutorial)
+	- [Install](#install)
+	- [Example](#example)
+		- [Step 1: Define state-diagram on the Mermaid website](#step-1-define-state-diagram-on-the-mermaid-website)
+		- [Step 2: Define transitions in Golang code](#step-2-define-transitions-in-golang-code)
+		- [Step 3: Verify that Golang FSM meets expectations](#step-3-verify-that-golang-fsm-meets-expectations)
+		- [Step 4: Call the domain object method in Domain-Driven Design (DDD)](#step-4-call-the-domain-object-method-in-domain-driven-design-ddd)
+
+## Install
 
 ```shell
 go get github.com/KScaesar/easyFSM
@@ -110,7 +128,7 @@ graph TD
 
 ### Step 4: Call the domain object method in Domain-Driven Design (DDD)
 
-[playground](https://go.dev/play/p/-6d8ugyIlDX)
+[playground](https://go.dev/play/p/u50mPJtvSu8)
 
 ```go
 func ExampleFSM_OnAction() {
