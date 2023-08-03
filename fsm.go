@@ -99,9 +99,9 @@ func (fsm *FSM[E, S]) Current() S {
 	return fsm.current
 }
 
-func (fsm *FSM[E, S]) SetCurrent(currentState S) FSM[E, S] {
+func (fsm *FSM[E, S]) CopyFSM(requiredState S) FSM[E, S] {
 	fresh := *fsm
-	fresh.current = currentState
+	fresh.current = requiredState
 	return fresh
 }
 

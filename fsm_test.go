@@ -76,7 +76,7 @@ func TestFSM_OnAction(t *testing.T) {
 		t.Errorf("Payed.OnAction: %v", err)
 	}
 
-	fsm2 := fsm1.SetCurrent(OrderStateShipped)
+	fsm2 := fsm1.CopyFSM(OrderStateShipped)
 	err = fsm2.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
 		expected := OrderStateReturnInProgress
 		if expected != nextState {
@@ -88,7 +88,7 @@ func TestFSM_OnAction(t *testing.T) {
 		t.Errorf("ReturnInProgress.OnAction: %v", err)
 	}
 
-	fsm3 := fsm1.SetCurrent(OrderStateShipped)
+	fsm3 := fsm1.CopyFSM(OrderStateShipped)
 	err = fsm3.OnAction(OrderEventTopic("CloudNetwork.Created"), func(nextState OrderState) error {
 		expected := OrderStateReturnInProgress
 		if expected != nextState {

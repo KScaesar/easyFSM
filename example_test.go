@@ -71,7 +71,7 @@ type Order struct {
 }
 
 func (o *Order) ReturnRequest() error {
-	fsm := OrderStateFSM.SetCurrent(o.State)
+	fsm := OrderStateFSM.CopyFSM(o.State)
 	return fsm.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
 		o.State = nextState
 		fmt.Println("ReturnRequest success!!")
