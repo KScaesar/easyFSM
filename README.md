@@ -21,7 +21,7 @@ By visualizing state transitions using Mermaid, users can gain a clearer underst
 ## Install
 
 ```shell
-go get github.com/KScaesar/easyFSM@v0.1.0
+go get github.com/KScaesar/easyFSM
 ```
 
 ## Example
