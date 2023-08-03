@@ -63,7 +63,7 @@ func TestFSM_StateAll(t *testing.T) {
 }
 
 func TestFSM_OnAction(t *testing.T) {
-	fsm1 := OrderStateFSM
+	fsm1 := *OrderStateFSM // get by value
 
 	err := fsm1.OnAction(OrderEventTopicPlaced, func(nextState OrderState) error {
 		expected := OrderStateConfirmed
