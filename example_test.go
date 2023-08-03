@@ -1,8 +1,10 @@
-package easyFSM
+package easyFSM_test
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/KScaesar/easyFSM"
 )
 
 type OrderEventTopic string
@@ -34,7 +36,7 @@ const (
 )
 
 // The FSM should be placed in the global scope.
-var OrderStateFSM = NewFSM[OrderEventTopic, OrderState](OrderStateAwaitingPayment).
+var OrderStateFSM = easyFSM.NewFSM[OrderEventTopic, OrderState](OrderStateAwaitingPayment).
 	DefineTransition(OrderEventTopicPlaced, OrderStateAwaitingPayment, OrderStateConfirmed).
 	DefineTransition(OrderEventTopicShipped, OrderStateConfirmed, OrderStateShipped).
 	DefineTransition(OrderEventTopicDelivered, OrderStateShipped, OrderStateDelivered).
@@ -75,7 +77,7 @@ type Order struct {
 }
 
 func (o *Order) ReturnRequest() error {
-	fsm := OrderStateFSM.CopyFSM(o.State) // copy by vlaue
+	fsm := OrderStateFSM.CopyFSM(o.State) // copy by value
 
 	return fsm.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
 		o.State = nextState
