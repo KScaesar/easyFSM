@@ -9,15 +9,39 @@ func ExampleFSM_OnAction() {
 	repo := MemoryOrderRepository{}
 	ctx := context.Background()
 
+	// UseCaseSuccess:
+	// ReturnRequest success!!
+	fmt.Printf("UseCaseSuccess:\n")
 	err := OrderUseCaseSuccess(repo, ctx)
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	// UseCaseFail:
+	// key = {event: Order.ReturnRequested, requiredState: Delivered}, but currentState = Cancelled: state not match
+	fmt.Printf("\nUseCaseFail:\n")
 	err = OrderUseCaseFail(repo, ctx)
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func OrderUseCaseSuccess(repo OrderRepository, ctx context.Context) error {
+	order, err := repo.LockOrderById(ctx, "action_success")
+	if err != nil {
+		return fmt.Errorf("get obj from db: %w", err)
+	}
+
+	return order.ReturnRequest()
+}
+
+func OrderUseCaseFail(repo OrderRepository, ctx context.Context) error {
+	order, err := repo.LockOrderById(ctx, "action_fail")
+	if err != nil {
+		return err
+	}
+
+	return order.ReturnRequest()
 }
 
 type OrderRepository interface {
@@ -53,22 +77,4 @@ func (o *Order) ReturnRequest() error {
 		fmt.Println("ReturnRequest success!!")
 		return nil
 	})
-}
-
-func OrderUseCaseSuccess(repo OrderRepository, ctx context.Context) error {
-	order, err := repo.LockOrderById(ctx, "action_success")
-	if err != nil {
-		return err
-	}
-
-	return order.ReturnRequest()
-}
-
-func OrderUseCaseFail(repo OrderRepository, ctx context.Context) error {
-	order, err := repo.LockOrderById(ctx, "action_fail")
-	if err != nil {
-		return err
-	}
-
-	return order.ReturnRequest()
 }
