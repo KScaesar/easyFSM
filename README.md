@@ -139,7 +139,7 @@ type Order struct {
 }
 
 func (o *Order) ReturnRequest() error {
-	fsm := OrderStateFSM.CopyFSM(o.State) // copy by vlaue
+	fsm := OrderStateFSM.CopyFSM(o.State) // copy by value
 
 	return fsm.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
 		o.State = nextState
