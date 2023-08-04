@@ -1,10 +1,12 @@
-package easyFSM
+package easyFSM_test
 
 import (
 	"errors"
 	"fmt"
 	"sort"
 	"testing"
+
+	"github.com/KScaesar/easyFSM"
 )
 
 func TestFSM_StateAll(t *testing.T) {
@@ -59,7 +61,7 @@ func TestFSM_OnAction(t *testing.T) {
 		}
 		return nil
 	})
-	if !errors.Is(err, ErrEventNotExist) {
-		t.Errorf("NotExistEvent.OnAction: expected = {%v}, but actual = {%v}", ErrEventNotExist, err)
+	if !errors.Is(err, easyFSM.ErrEventNotExist) {
+		t.Errorf("NotExistEvent.OnAction: expected = {%v}, but actual = {%v}", easyFSM.ErrEventNotExist, err)
 	}
 }

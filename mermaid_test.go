@@ -1,7 +1,9 @@
-package easyFSM
+package easyFSM_test
 
 import (
 	"testing"
+
+	"github.com/KScaesar/easyFSM"
 )
 
 func TestMermaidGraphByTopDown(t *testing.T) {
@@ -18,7 +20,7 @@ graph TD
   Returned --> |Order.Refunded| RefundInProgress
   Delivered --> |Order.ReturnRequested| ReturnInProgress
 `
-	actual := MermaidGraphByTopDown(OrderStateFSM, nil)
+	actual := easyFSM.MermaidGraphByTopDown(OrderStateFSM, nil)
 
 	if expected != actual {
 		t.Errorf("expected = %v, but actual = %v", expected, actual)
