@@ -129,7 +129,7 @@ graph TD
 
 ### Step 4: Call the domain object method in Domain-Driven Design (DDD)
 
-[playground](https://go.dev/play/p/X_aDExbSu4N)
+[playground](https://go.dev/play/p/fkXY_-n2nsd)
 
 ```go
 type Order struct {
@@ -143,26 +143,32 @@ func (o *Order) ReturnRequest() error {
 
 	return fsm.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
 		o.State = nextState
-		fmt.Println("ReturnRequest success!!")
+		fmt.Println(o.State)
 		return nil
 	})
 }
 
 func OrderUseCaseSuccess(repo OrderRepository, ctx context.Context) error {
-	order, err := repo.LockOrderById(ctx, "action_success")
+	order, err := repo.LockOrderById(ctx, "order_state_is_Delivered")
 	if err != nil {
 		return fmt.Errorf("get obj from db: %w", err)
 	}
 
+	// ReturnInProgress
 	return order.ReturnRequest()
 }
 
 func OrderUseCaseFail(repo OrderRepository, ctx context.Context) error {
-	order, err := repo.LockOrderById(ctx, "action_fail")
+	order, err := repo.LockOrderById(ctx, "order_state_is_Confirmed")
 	if err != nil {
-		return err
+		return fmt.Errorf("get obj from db: %w", err)
 	}
 
+	// key = {event: Order.ReturnRequested, requiredState: Delivered}, but currentState = Confirmed: state not match
 	return order.ReturnRequest()
+}
+
+type OrderRepository interface {
+	LockOrderById(ctx context.Context, oId string) (Order, error)
 }
 ```
