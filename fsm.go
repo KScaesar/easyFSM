@@ -6,11 +6,11 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-func NewFSM[E, S constraints.Ordered](startState S) *FSM[E, S] {
+func NewFSM[E, S constraints.Ordered](startState S) FSM[E, S] {
 	stateAll := make(map[S]bool)
 	stateAll[startState] = true
 
-	return &FSM[E, S]{
+	return FSM[E, S]{
 		startState:     startState,
 		current:        startState,
 		stateAll:       stateAll,
@@ -43,7 +43,7 @@ type FSM[E, S constraints.Ordered] struct {
 // Note:
 // 1. The FSM should be placed in the global scope.
 // 2. When importing the package, transitions should be added using the DefineTransition function during the initialization step.
-func (fsm *FSM[E, S]) DefineTransition(event E, src, dest S) *FSM[E, S] {
+func (fsm FSM[E, S]) DefineTransition(event E, src, dest S) FSM[E, S] {
 	key := matchKey[E, S]{
 		event: event,
 		src:   src,
@@ -69,7 +69,7 @@ func (fsm *FSM[E, S]) DefineTransition(event E, src, dest S) *FSM[E, S] {
 // Parameters:
 // - event: The event that triggers the transition.
 // - action: A function that takes the destination state as a parameter and returns an error if any.
-func (fsm *FSM[E, S]) OnAction(event E, action func(nextState S) error) error {
+func (fsm FSM[E, S]) OnAction(event E, action func(nextState S) error) error {
 	dest, err := fsm.doTransition(event)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func (fsm *FSM[E, S]) OnAction(event E, action func(nextState S) error) error {
 	return action(dest)
 }
 
-func (fsm *FSM[E, S]) doTransition(event E) (dest S, err error) {
+func (fsm FSM[E, S]) doTransition(event E) (dest S, err error) {
 	key := matchKey[E, S]{
 		event: event,
 		src:   fsm.current,
@@ -101,17 +101,17 @@ func (fsm *FSM[E, S]) doTransition(event E) (dest S, err error) {
 	return dest, fmt.Errorf("event=%v: %w", event, ErrEventNotDefined)
 }
 
-func (fsm *FSM[E, S]) CurrentState() S {
+func (fsm FSM[E, S]) CurrentState() S {
 	return fsm.current
 }
 
-func (fsm *FSM[E, S]) CopyFSM(currentState S) FSM[E, S] {
-	fresh := *fsm
+func (fsm FSM[E, S]) CopyFSM(currentState S) FSM[E, S] {
+	fresh := fsm
 	fresh.current = currentState
 	return fresh
 }
 
-func (fsm *FSM[E, S]) StateAll() []S {
+func (fsm FSM[E, S]) ShowStates() []S {
 	var list []S
 	list = append(list, fsm.startState)
 	for state := range fsm.stateAll {

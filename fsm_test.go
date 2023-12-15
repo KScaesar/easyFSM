@@ -25,7 +25,7 @@ func TestFSM_StateAll(t *testing.T) {
 		return expected[i] < expected[j]
 	})
 
-	actual := OrderFSM.StateAll()
+	actual := OrderFSM.ShowStates()
 	sort.Slice(actual, func(i, j int) bool {
 		return actual[i] < actual[j]
 	})

@@ -30,7 +30,7 @@ import (
 //	graph TD
 //	  StateA --> |EventX| StateB
 //	  StateB --> |EventY| StateC
-func MermaidGraphByTopDown[E, S constraints.Ordered](fsm *FSM[E, S], transform TextTransformFunc) string {
+func MermaidGraphByTopDown[E, S constraints.Ordered](fsm FSM[E, S], transform TextTransformFunc) string {
 	var buf strings.Builder
 	buf.WriteString("\ngraph TD\n")
 

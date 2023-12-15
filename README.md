@@ -2,9 +2,9 @@
 
 I really like the concept of Domain-Driven Design (DDD), but I often struggle with handling state changes in domain objects.  
 
-I created this package with the motivation to simplify state management and leverage Mermaid for visualizing state transitions.  
+I created this package with the motivation to simplify state management and use Mermaid for visualizing state transitions.  
 
-The traditional approach of handling state changes in domain objects often involves writing numerous if conditions, which can be error-prone and mentally taxing.  
+The usual way of managing state changes in domain objects often means dealing with a bunch of if conditions, and that can be error-prone.  
 
 This package aims to provide a more straightforward and organized way to manage states, making it easier for developers to understand and maintain their code.  
 
@@ -56,7 +56,7 @@ graph TD
 // - event: The event triggering the transition.
 // - src: The source state from which the transition is allowed.
 // - dest: The destination state to which the FSM will transition when the event occurs in the source state.
-func (fsm *FSM[E, S]) DefineTransition(event E, src, dest S) *FSM[E, S]
+func (fsm FSM[E, S]) DefineTransition(event E, src, dest S) FSM[E, S]
 ```
 
 ```go
@@ -119,7 +119,7 @@ graph TD
   Returned --> |Order.Refunded| RefundInProgress
   Delivered --> |Order.ReturnRequested| ReturnInProgress
 `
-	actual := MermaidGraphByTopDown(OrderStateFSM, nil)
+	actual := MermaidGraphByTopDown(OrderFSM, nil)
 
 	if expected != actual {
 		t.Errorf("expected = %v, but actual = %v", expected, actual)
