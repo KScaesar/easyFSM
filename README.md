@@ -61,29 +61,29 @@ func (fsm *FSM[E, S]) DefineTransition(event E, src, dest S) *FSM[E, S]
 
 ```go
 // The FSM should be placed in the global scope.
-var OrderStateFSM = NewFSM[OrderEventTopic, OrderState](OrderStateAwaitingPayment).
-	DefineTransition(OrderEventTopicPlaced, OrderStateAwaitingPayment, OrderStateConfirmed).
-	DefineTransition(OrderEventTopicShipped, OrderStateConfirmed, OrderStateShipped).
-	DefineTransition(OrderEventTopicDelivered, OrderStateShipped, OrderStateDelivered).
-	DefineTransition(OrderEventTopicCancelled, OrderStateConfirmed, OrderStateCancelled).
-	DefineTransition(OrderEventTopicReturnRequested, OrderStateShipped, OrderStateReturnInProgress).
-	DefineTransition(OrderEventTopicCargoReturned, OrderStateReturnInProgress, OrderStateReturned).
-	DefineTransition(OrderEventTopicRefundRequested, OrderStateReturnInProgress, OrderStateRefundInProgress).
-	DefineTransition(OrderEventTopicRefunded, OrderStateRefundInProgress, OrderStateRefunded).
-	DefineTransition(OrderEventTopicRefunded, OrderStateReturned, OrderStateRefundInProgress).
-	DefineTransition(OrderEventTopicReturnRequested, OrderStateDelivered, OrderStateReturnInProgress)
+var OrderFSM = NewFSM[OrderEvent, OrderState](OrderStateAwaitingPayment).
+	DefineTransition(OrderEventPlaced, OrderStateAwaitingPayment, OrderStateConfirmed).
+	DefineTransition(OrderEventShipped, OrderStateConfirmed, OrderStateShipped).
+	DefineTransition(OrderEventDelivered, OrderStateShipped, OrderStateDelivered).
+	DefineTransition(OrderEventCancelled, OrderStateConfirmed, OrderStateCancelled).
+	DefineTransition(OrderEventReturnRequested, OrderStateShipped, OrderStateReturnInProgress).
+	DefineTransition(OrderEventCargoReturned, OrderStateReturnInProgress, OrderStateReturned).
+	DefineTransition(OrderEventRefundRequested, OrderStateReturnInProgress, OrderStateRefundInProgress).
+	DefineTransition(OrderEventRefunded, OrderStateRefundInProgress, OrderStateRefunded).
+	DefineTransition(OrderEventRefunded, OrderStateReturned, OrderStateRefundInProgress).
+	DefineTransition(OrderEventReturnRequested, OrderStateDelivered, OrderStateReturnInProgress)
 
-type OrderEventTopic string
+type OrderEvent string
 
 const (
-	OrderEventTopicPlaced          OrderEventTopic = "Order.Placed"
-	OrderEventTopicShipped         OrderEventTopic = "Order.Shipped"
-	OrderEventTopicCancelled       OrderEventTopic = "Order.Cancelled"
-	OrderEventTopicDelivered       OrderEventTopic = "Order.Delivered"
-	OrderEventTopicReturnRequested OrderEventTopic = "Order.ReturnRequested"
-	OrderEventTopicCargoReturned   OrderEventTopic = "Order.CargoReturned"
-	OrderEventTopicRefundRequested OrderEventTopic = "Order.RefundRequested"
-	OrderEventTopicRefunded        OrderEventTopic = "Order.Refunded"
+	OrderEventPlaced          OrderEvent = "Order.Placed"
+	OrderEventShipped         OrderEvent = "Order.Shipped"
+	OrderEventCancelled       OrderEvent = "Order.Cancelled"
+	OrderEventDelivered       OrderEvent = "Order.Delivered"
+	OrderEventReturnRequested OrderEvent = "Order.ReturnRequested"
+	OrderEventCargoReturned   OrderEvent = "Order.CargoReturned"
+	OrderEventRefundRequested OrderEvent = "Order.RefundRequested"
+	OrderEventRefunded        OrderEvent = "Order.Refunded"
 )
 
 type OrderState string
@@ -141,7 +141,7 @@ type Order struct {
 func (o *Order) ReturnRequest() error {
 	fsm := OrderStateFSM.CopyFSM(o.State) // copy by value
 
-	return fsm.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
+	return fsm.OnAction(OrderEventReturnRequested, func(nextState OrderState) error {
 		o.State = nextState
 		fmt.Println(o.State)
 		return nil
