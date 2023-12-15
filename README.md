@@ -129,7 +129,7 @@ graph TD
 
 ### Step 4: Call the domain object method in Domain-Driven Design (DDD)
 
-[playground](https://go.dev/play/p/fkXY_-n2nsd)
+[playground](https://go.dev/play/p/WJVVyZNRnTF)
 
 ```go
 type Order struct {

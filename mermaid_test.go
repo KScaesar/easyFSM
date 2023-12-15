@@ -20,7 +20,7 @@ graph TD
   Returned --> |Order.Refunded| RefundInProgress
   Delivered --> |Order.ReturnRequested| ReturnInProgress
 `
-	actual := easyFSM.MermaidGraphByTopDown(OrderStateFSM, nil)
+	actual := easyFSM.MermaidGraphByTopDown(OrderFSM, nil)
 
 	if expected != actual {
 		t.Errorf("expected = %v, but actual = %v", expected, actual)

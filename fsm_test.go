@@ -10,12 +10,22 @@ import (
 )
 
 func TestFSM_StateAll(t *testing.T) {
-	expected := []OrderState{OrderStateAwaitingPayment, OrderStateConfirmed, OrderStateShipped, OrderStateDelivered, OrderStateCancelled, OrderStateReturnInProgress, OrderStateReturned, OrderStateRefundInProgress, OrderStateRefunded}
+	expected := []OrderState{
+		OrderStateAwaitingPayment,
+		OrderStateConfirmed,
+		OrderStateShipped,
+		OrderStateDelivered,
+		OrderStateCancelled,
+		OrderStateReturnInProgress,
+		OrderStateReturned,
+		OrderStateRefundInProgress,
+		OrderStateRefunded,
+	}
 	sort.Slice(expected, func(i, j int) bool {
 		return expected[i] < expected[j]
 	})
 
-	actual := OrderStateFSM.StateAll()
+	actual := OrderFSM.StateAll()
 	sort.Slice(actual, func(i, j int) bool {
 		return actual[i] < actual[j]
 	})
@@ -28,9 +38,8 @@ func TestFSM_StateAll(t *testing.T) {
 }
 
 func TestFSM_OnAction(t *testing.T) {
-	fsm1 := *OrderStateFSM // get by value
-
-	err := fsm1.OnAction(OrderEventTopicPlaced, func(nextState OrderState) error {
+	fsm1 := OrderFSM.CopyFSM(OrderStateAwaitingPayment)
+	err := fsm1.OnAction(OrderEventPlaced, func(nextState OrderState) error {
 		expected := OrderStateConfirmed
 		if expected != nextState {
 			return fmt.Errorf("expected = %v, but actual = %v", expected, nextState)
@@ -41,8 +50,8 @@ func TestFSM_OnAction(t *testing.T) {
 		t.Errorf("Payed.OnAction: %v", err)
 	}
 
-	fsm2 := fsm1.CopyFSM(OrderStateShipped)
-	err = fsm2.OnAction(OrderEventTopicReturnRequested, func(nextState OrderState) error {
+	fsm2 := OrderFSM.CopyFSM(OrderStateShipped)
+	err = fsm2.OnAction(OrderEventReturnRequested, func(nextState OrderState) error {
 		expected := OrderStateReturnInProgress
 		if expected != nextState {
 			return fmt.Errorf("expected = %v, but actual = %v", expected, nextState)
@@ -53,15 +62,15 @@ func TestFSM_OnAction(t *testing.T) {
 		t.Errorf("ReturnInProgress.OnAction: %v", err)
 	}
 
-	fsm3 := fsm1.CopyFSM(OrderStateShipped)
-	err = fsm3.OnAction(OrderEventTopic("CloudNetwork.Created"), func(nextState OrderState) error {
+	fsm3 := OrderFSM.CopyFSM(OrderStateShipped)
+	err = fsm3.OnAction("CloudNetwork.Created", func(nextState OrderState) error {
 		expected := OrderStateReturnInProgress
 		if expected != nextState {
-			return fmt.Errorf("expected = {%v}, but actual = {%v}", expected, nextState)
+			return fmt.Errorf("expected = %v, but actual = %v", expected, nextState)
 		}
 		return nil
 	})
-	if !errors.Is(err, easyFSM.ErrEventNotExist) {
-		t.Errorf("NotExistEvent.OnAction: expected = {%v}, but actual = {%v}", easyFSM.ErrEventNotExist, err)
+	if !errors.Is(err, easyFSM.ErrEventNotDefined) {
+		t.Errorf("NotExistEvent.OnAction: expected = %v, but actual = %v", easyFSM.ErrEventNotDefined, err)
 	}
 }

@@ -14,7 +14,7 @@ func NewFSM[E, S constraints.Ordered](startState S) *FSM[E, S] {
 		startState:     startState,
 		current:        startState,
 		stateAll:       stateAll,
-		transitions:    make(transitionAll[E, S]),
+		transitions:    make(map[matchKey[E, S]]S),
 		defineSequence: make([]matchKey[E, S], 0, 5),
 	}
 }
@@ -23,7 +23,7 @@ type FSM[E, S constraints.Ordered] struct {
 	startState     S
 	current        S
 	stateAll       map[S]bool
-	transitions    transitionAll[E, S]
+	transitions    map[matchKey[E, S]]S
 	defineSequence []matchKey[E, S]
 }
 
@@ -50,7 +50,7 @@ func (fsm *FSM[E, S]) DefineTransition(event E, src, dest S) *FSM[E, S] {
 	}
 	_, exist := fsm.transitions[key]
 	if exist {
-		panic("key = " + key.String() + " : fsm adds duplicated transition")
+		panic(fmt.Sprintf("duplicated transition: event=%v source state=%v", event, src))
 	}
 
 	fsm.transitions[key] = dest
@@ -83,25 +83,31 @@ func (fsm *FSM[E, S]) doTransition(event E) (dest S, err error) {
 		src:   fsm.current,
 	}
 	dest, ok := fsm.transitions[key]
-	if !ok {
-		for k := range fsm.transitions {
-			if k.event == event {
-				return dest, fmt.Errorf("key = %v, but currentState = %v: %w", k, fsm.current, ErrStateNotMatch)
-			}
-		}
-		return dest, fmt.Errorf("event = %v: %w", event, ErrEventNotExist)
+	if ok {
+		fsm.current = dest
+		return dest, nil
 	}
-	fsm.current = dest
-	return dest, nil
+
+	for k := range fsm.transitions {
+		if k.event == event {
+			return dest, fmt.Errorf("for the trigger event '%v', the required source state is '%v' but the current state is '%v': %v",
+				k.event,
+				k.src,
+				fsm.current,
+				ErrStateNotMatch,
+			)
+		}
+	}
+	return dest, fmt.Errorf("event=%v: %w", event, ErrEventNotDefined)
 }
 
-func (fsm *FSM[E, S]) Current() S {
+func (fsm *FSM[E, S]) CurrentState() S {
 	return fsm.current
 }
 
-func (fsm *FSM[E, S]) CopyFSM(requiredState S) FSM[E, S] {
+func (fsm *FSM[E, S]) CopyFSM(currentState S) FSM[E, S] {
 	fresh := *fsm
-	fresh.current = requiredState
+	fresh.current = currentState
 	return fresh
 }
 
@@ -117,13 +123,7 @@ func (fsm *FSM[E, S]) StateAll() []S {
 	return list
 }
 
-type transitionAll[E, S constraints.Ordered] map[matchKey[E, S]]S
-
 type matchKey[E, S constraints.Ordered] struct {
 	event E
 	src   S
-}
-
-func (k matchKey[E, S]) String() string {
-	return fmt.Sprintf("{event: %v, requiredState: %v}", k.event, k.src)
 }
